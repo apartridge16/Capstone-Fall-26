@@ -6,8 +6,8 @@ The app collects workout performance and pre-workout check-in data such as sleep
 
 # Planned Technologies
 
-React Native / TypeScript
-Expo
-Python / FastAPI
-SQLite / PostgreSQL
-Git / GitHub
+-   React Native / TypeScript
+-   Expo
+-   Python / FastAPI
+-   SQLite / PostgreSQL
+-   Git / GitHub
