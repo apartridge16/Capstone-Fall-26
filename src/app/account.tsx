@@ -6,17 +6,21 @@ import {
     View
 } from "react-native";
 
-export default function Home() {
+export default function Account() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Strength AI</Text>
-      <Text style={styles.subtitle}>Welcome to the Home Page</Text>
+      <Text style={styles.title}>Account</Text>
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.label}>Email</Text>
+        <Text style={styles.value}>user@example.com</Text>
+      </View>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push("/account")}
+        onPress={() => router.back()}
       >
-        <Text style={styles.buttonText}>Account</Text>
+        <Text style={styles.buttonText}>Back to Home</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -33,7 +37,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     paddingHorizontal: 30,
     backgroundColor: "#111111",
   },
@@ -42,32 +45,40 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: "bold",
     color: "#ffffff",
-    marginBottom: 10,
+    marginBottom: 40,
   },
 
-  subtitle: {
-    fontSize: 18,
+  infoContainer: {
+    backgroundColor: "#222222",
+    padding: 20,
+    borderRadius: 8,
+    marginBottom: 30,
+  },
+
+  label: {
+    fontSize: 14,
     color: "#aaaaaa",
-    marginBottom: 40,
+    marginBottom: 5,
+  },
+
+  value: {
+    fontSize: 18,
+    color: "#ffffff",
   },
 
   button: {
     backgroundColor: "#3478f6",
-    paddingVertical: 15,
-    paddingHorizontal: 40,
+    padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    width: 200,
+    marginBottom: 15,
   },
 
   signOutButton: {
     backgroundColor: "#333333",
-    paddingVertical: 15,
-    paddingHorizontal: 40,
+    padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    width: 200,
-    marginTop: 15,
   },
 
   buttonText: {
