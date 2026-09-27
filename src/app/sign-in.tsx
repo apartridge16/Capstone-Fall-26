@@ -1,5 +1,7 @@
 import { router } from "expo-router";
+import { useState } from "react";
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -7,7 +9,60 @@ import {
   View
 } from "react-native";
 
+import * as SecureStore from "expo-secure-store";
+import { API_URL } from "../app/constants/api";
+
 export default function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSignIn() {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter your email and password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Sign in failed");
+      }
+
+      // Save the JWT securely on the device
+      await SecureStore.setItemAsync("access_token", data.access_token);
+
+      router.replace("/home");
+    } catch (error) {
+        console.error(error);
+
+        if (error instanceof Error) {
+          Alert.alert("Sign In Failed", error.message);
+        } else {
+          Alert.alert(
+            "Connection Error",
+            "Could not connect to the Strength AI server."
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Strength AI</Text>
@@ -19,6 +74,8 @@ export default function SignIn() {
         placeholderTextColor="#888"
         keyboardType="email-address"
         autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
       />
 
       <TextInput
@@ -26,13 +83,18 @@ export default function SignIn() {
         placeholder="Password"
         placeholderTextColor="#888"
         secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push("/home")}
+        onPress={handleSignIn}
+        disabled={loading}
       >
-        <Text style={styles.buttonText}>Sign In</Text>
+        <Text style={styles.buttonText}>
+          {loading ? "Signing In..." : "Sign In"}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push("/sign-up")}>

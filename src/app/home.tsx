@@ -1,12 +1,19 @@
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 export default function Home() {
+
+    async function handleSignOut() {
+    await SecureStore.deleteItemAsync("access_token");
+    router.replace("/sign-in");
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Strength AI</Text>
@@ -21,7 +28,7 @@ export default function Home() {
 
       <TouchableOpacity
         style={styles.signOutButton}
-        onPress={() => router.replace("/sign-in")}
+        onPress={handleSignOut}
       >
         <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>

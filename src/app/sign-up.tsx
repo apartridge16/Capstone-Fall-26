@@ -1,13 +1,93 @@
 import { router } from "expo-router";
+import { useState } from "react";
 import {
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
+import { API_URL } from "../app/constants/api";
+
 export default function SignUp() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSignUp() {
+    // Make sure all fields are filled out
+    if (!email || !password || !confirmPassword) {
+      Alert.alert("Error", "Please fill out all fields.");
+      return;
+    }
+
+    // Make sure both passwords match
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match.");
+      return;
+    }
+
+    // Backend requires passwords to be at least 8 characters
+    if (password.length < 8) {
+      Alert.alert(
+        "Error",
+        "Password must be at least 8 characters."
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Send the new account information to the backend
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      // Display an error returned by the backend
+      if (!response.ok) {
+        Alert.alert(
+          "Sign Up Failed",
+          data.detail || "Unable to create account."
+        );
+        return;
+      }
+
+      // Account was successfully created
+      Alert.alert(
+        "Account Created",
+        "Your account was created successfully.",
+        [
+          {
+            text: "OK",
+            onPress: () => router.replace("/sign-in"),
+          },
+        ]
+      );
+    } catch (error) {
+      console.error(error);
+
+      Alert.alert(
+        "Connection Error",
+        "Could not connect to the Strength AI server."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
@@ -19,6 +99,8 @@ export default function SignUp() {
         placeholderTextColor="#888"
         keyboardType="email-address"
         autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
       />
 
       <TextInput
@@ -26,6 +108,8 @@ export default function SignUp() {
         placeholder="Password"
         placeholderTextColor="#888"
         secureTextEntry
+        value={password}
+        onChangeText={setPassword}
       />
 
       <TextInput
@@ -33,16 +117,21 @@ export default function SignUp() {
         placeholder="Confirm Password"
         placeholderTextColor="#888"
         secureTextEntry
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
       />
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.replace("/home")}
+        onPress={handleSignUp}
+        disabled={loading}
       >
-        <Text style={styles.buttonText}>Create Account</Text>
+        <Text style={styles.buttonText}>
+          {loading ? "Creating Account..." : "Create Account"}
+        </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={() => router.replace("/sign-in")}>
         <Text style={styles.link}>
           Already have an account? Sign In
         </Text>

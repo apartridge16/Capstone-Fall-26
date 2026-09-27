@@ -1,19 +1,84 @@
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
 import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
+import { API_URL } from "../app/constants/api";
+
 export default function Account() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadAccount() {
+      try {
+        // Get the saved JWT
+        const token = await SecureStore.getItemAsync("access_token");
+
+        if (!token) {
+          router.replace("/sign-in");
+          return;
+        }
+
+        // Request the logged-in user's account information
+        const response = await fetch(`${API_URL}/account`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        // Token is invalid or expired
+        if (!response.ok) {
+          await SecureStore.deleteItemAsync("access_token");
+          router.replace("/sign-in");
+          return;
+        }
+
+        // Save the user's email returned by the backend
+        setEmail(data.email);
+      } catch (error) {
+        console.error(error);
+
+        Alert.alert(
+          "Connection Error",
+          "Could not load your account information."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadAccount();
+  }, []);
+
+  async function handleSignOut() {
+    // Delete the saved JWT
+    await SecureStore.deleteItemAsync("access_token");
+
+    router.replace("/sign-in");
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Account</Text>
 
       <View style={styles.infoContainer}>
         <Text style={styles.label}>Email</Text>
-        <Text style={styles.value}>user@example.com</Text>
+
+        {loading ? (
+          <ActivityIndicator />
+        ) : (
+          <Text style={styles.value}>{email}</Text>
+        )}
       </View>
 
       <TouchableOpacity
@@ -25,7 +90,7 @@ export default function Account() {
 
       <TouchableOpacity
         style={styles.signOutButton}
-        onPress={() => router.replace("/sign-in")}
+        onPress={handleSignOut}
       >
         <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
