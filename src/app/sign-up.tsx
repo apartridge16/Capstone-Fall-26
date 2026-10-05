@@ -9,7 +9,7 @@ import {
   View
 } from "react-native";
 
-import { API_URL } from "../app/constants/api";
+import { API_URL } from "../constants/api";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");

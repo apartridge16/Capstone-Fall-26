@@ -10,7 +10,7 @@ import {
   View
 } from "react-native";
 
-import { API_URL } from "../app/constants/api";
+import { API_URL } from "../constants/api";
 
 export default function Account() {
   const [email, setEmail] = useState("");
